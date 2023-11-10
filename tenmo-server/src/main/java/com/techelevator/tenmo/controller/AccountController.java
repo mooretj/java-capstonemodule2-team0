@@ -29,10 +29,10 @@ public class AccountController {
         return accountDao.getBalanceByUserId(userId);
     }
 
-    @RequestMapping(path = "{userId}", method = RequestMethod.GET)
-    public Account getAccountByUserId(@PathVariable("userId") int userId) {
-        return accountDao.getAccountByUserId(userId);
-    }
+//    @RequestMapping(path = "{userId}", method = RequestMethod.GET)
+//    public Account getAccountByUserId(@PathVariable("userId") int userId) {
+//        return accountDao.getAccountByUserId(userId);
+//    }
 
     @RequestMapping(path = "transfer/{transferId}", method = RequestMethod.GET)
     public TransferDto getTransferById(@PathVariable("transferId") int transferId){
@@ -61,6 +61,11 @@ public class AccountController {
     @RequestMapping(path= "transfer/pending/{userId}", method = RequestMethod.GET)
     public List<TransferDto> getListOfPendingTransByUserId(@PathVariable("userId") int userId){
         return transferDao.getPendingTransByUserId(userId);
+    }
+
+    @RequestMapping(path = "", method = RequestMethod.GET)
+    public List<Account> getListAllAccounts(){
+        return accountDao.getAccounts();
     }
 
 

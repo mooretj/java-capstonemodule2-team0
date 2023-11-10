@@ -17,6 +17,11 @@ public class TransferDto {
     private String username;
 
     public TransferDto(){}
+    public TransferDto(int acctFromId, int acctToId, BigDecimal amount){
+        this.acctFromId = acctFromId;
+        this.acctToId = acctToId;
+        this.amount = amount;
+    }
 
     public int getTransId() {
         return transId;
@@ -72,11 +77,5 @@ public class TransferDto {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public TransferDto(int acctFromId, int acctToId, BigDecimal amount ){
-        this.acctFromId = acctFromId;
-        this.acctToId = acctToId;
-        this.amount = amount;
     }
 }

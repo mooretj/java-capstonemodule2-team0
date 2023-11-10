@@ -1,9 +1,14 @@
 package com.techelevator.tenmo;
 
+import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.tenmo.model.TransferDto;
 import com.techelevator.tenmo.model.UserCredentials;
+import com.techelevator.tenmo.services.AccountService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
+
+import java.math.BigDecimal;
 
 public class App {
 
@@ -13,6 +18,9 @@ public class App {
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
 
     private AuthenticatedUser currentUser;
+    private AccountService accountService = new AccountService();
+
+
 
     public static void main(String[] args) {
         App app = new App();
@@ -85,7 +93,8 @@ public class App {
     }
 
 	private void viewCurrentBalance() {
-		// TODO Auto-generated method stub
+        BigDecimal balance = accountService.getAccountBalance(currentUser);
+        System.out.println(balance);
 		
 	}
 
@@ -100,7 +109,23 @@ public class App {
 	}
 
 	private void sendBucks() {
-		// TODO Auto-generated method stub
+
+        Account[] accounts = accountService.printAccountList();
+        for(Account account: accounts){
+            if(account.getUsername().equals(currentUser.getUser().getUsername())){
+                continue;
+            }else{
+                System.out.println(account.getUserId() + ": " + account.getUsername());
+            }
+        }
+        int toUserId = consoleService.promptForInt("Enter ID of user you are sending to (0 to cancel):");
+        BigDecimal amountTo = consoleService.promptForBigDecimal("Enter amount: ");
+        TransferDto transferDto = new TransferDto(currentUser.getUser().getId(), toUserId, amountTo);
+        accountService.sendBucks(transferDto);
+
+
+
+
 		
 	}
 

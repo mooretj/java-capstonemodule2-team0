@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 import javax.xml.crypto.Data;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class JdbcAccountDao implements AccountDao{
@@ -20,22 +22,22 @@ public class JdbcAccountDao implements AccountDao{
     public JdbcAccountDao(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
-    @Override
-    public Account getAccountByUserId(int userId) {
-        Account account = null;
-        String sql = "SELECT account_id, user_id, balance FROM account WHERE user_id = ?;";
-
-        try {
-            SqlRowSet result = jdbcTemplate.queryForRowSet(sql, userId);
-            while(result.next()) {
-                account = mapRowToAccount(result);
-            }
-        }
-        catch (CannotGetJdbcConnectionException e) {
-            throw new DaoException("Unable to connect to server or database", e);
-        }
-      return account;
-    }
+//    @Override
+//    public Account getAccountByUserId(int userId) {
+//        Account account = null;
+//        String sql = "SELECT account_id, user_id, balance FROM account WHERE user_id = ?;";
+//
+//        try {
+//            SqlRowSet result = jdbcTemplate.queryForRowSet(sql, userId);
+//            while(result.next()) {
+//                account = mapRowToAccount(result);
+//            }
+//        }
+//        catch (CannotGetJdbcConnectionException e) {
+//            throw new DaoException("Unable to connect to server or database", e);
+//        }
+//      return account;
+//    }
     @Override
     public BigDecimal getBalanceByUserId(int userId) {
         BigDecimal balance = null;
@@ -87,13 +89,32 @@ public class JdbcAccountDao implements AccountDao{
             throw new DaoException("Data integrity violation", e);
         }
 
+
     }
+
+    @Override
+    public List<Account> getAccounts() {
+        List<Account> accounts = new ArrayList<>();
+        String sql = "SELECT * FROM account JOIN tenmo_user ON tenmo_user.user_id = account.user_id;";
+        try {
+            SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
+            while (results.next()) {
+                Account account = mapRowToAccount(results);
+                accounts.add(account);
+            }
+        } catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException("Unable to connect to server or database", e);
+        }
+        return accounts;
+    }
+
 
     public Account mapRowToAccount(SqlRowSet rowSet) {
         Account account = new Account();
         account.setAccountId(rowSet.getInt("account_id"));
         account.setUserId(rowSet.getInt("user_id"));
         account.setBalance(rowSet.getBigDecimal("balance"));
+        account.setUsername(rowSet.getString("username"));
         return account;
     }
 }

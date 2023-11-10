@@ -19,7 +19,7 @@ public class JdbcAccountDao implements AccountDao{
     public JdbcAccountDao(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
-
+    @Override
     public Account getAccountByUserId(int userId) {
         Account account = null;
         String sql = "SELECT account_id, user_id, balance FROM account WHERE user_id = ?;";
@@ -35,7 +35,7 @@ public class JdbcAccountDao implements AccountDao{
         }
       return account;
     }
-
+    @Override
     public BigDecimal getBalanceByUserId(int userId) {
         BigDecimal balance = null;
         String sql = "SELECT balance FROM account WHERE user_id = ?;";

@@ -5,7 +5,7 @@ import com.techelevator.tenmo.model.TransferDto;
 import java.util.List;
 
 public interface TransferDao {
-    public List<TransferDto> getTransferHistoryByUserId(int userId);
+    public List<TransferDto> getTransferHistory(int userId);
     public TransferDto getTransferById(int transferId);
 
     public TransferDto sendTransferDto(TransferDto transferDto);

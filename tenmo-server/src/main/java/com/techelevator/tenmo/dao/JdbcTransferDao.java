@@ -91,7 +91,7 @@ public class JdbcTransferDao implements TransferDao {
     public List<TransferDto> getPendingTransByUserId (int userId){
         List<TransferDto> pendingTransList = new ArrayList<>();
         String sql = "SELECT t.transfer_id, t.amount, tu.username, t.account_from, t.account_to, t.transfer_type_id, t.transfer_status_id FROM transfer AS t " +
-                "JOIN account AS a ON a.account_id = t.account_from " +
+                "JOIN account AS a ON a.account_id = t.account_to " +
                 "JOIN tenmo_user AS tu ON tu.user_id = a.user_id " +
                 "WHERE t.transfer_status_id = 1 AND tu.user_id = ?;";
 
@@ -111,19 +111,31 @@ public class JdbcTransferDao implements TransferDao {
         return pendingTransList;
     }
     @Override
-    public List<TransferDto> getTransferHistoryByUserId(int userId) {//TODO: change SELECT to not all
+    public List<TransferDto> getTransferHistory(int userId) {
         List<TransferDto> transferDto = new ArrayList<>();
-        String sql = "SELECT t.transfer_id, t.amount, tu.username, t.account_from, t.account_to, t.transfer_type_id, t.transfer_status_id FROM transfer AS t " +
-                "JOIN account AS a ON a.account_id = t.account_from " +
-                "JOIN tenmo_user AS tu ON tu.user_id = a.user_id " +
-                "WHERE tu.user_id = ?;";
+        String sql = "SELECT * FROM transfer t " +
+                "JOIN account a ON a.account_id = t.account_from " +
+                "JOIN tenmo_user tu ON tu.user_id = a.user_id " +
+                "WHERE a.user_id = ?;";
 
-
-//        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount FROM transfer t\n" +
-//                "JOIN account a ON a.account_id = t.account_from\n" +
-//                "WHERE a.user_id = ?;";
         try {
             SqlRowSet result = jdbcTemplate.queryForRowSet(sql, userId);
+            while (result.next()){
+                transferDto.add(mapRowToTransferDto(result));
+            }
+
+        }
+        catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException("Unable to connect to server or database", e);
+        }
+
+        String sql2 = "SELECT * FROM transfer t " +
+                "JOIN account a ON a.account_id = t.account_to " +
+                "JOIN tenmo_user tu ON tu.user_id = a.user_id " +
+                "WHERE a.user_id = ?;";
+
+        try {
+            SqlRowSet result = jdbcTemplate.queryForRowSet(sql2, userId);
             while (result.next()){
                 transferDto.add(mapRowToTransferDto(result));
             }
@@ -135,6 +147,8 @@ public class JdbcTransferDao implements TransferDao {
         return transferDto;
 
     }
+
+
 
 
 

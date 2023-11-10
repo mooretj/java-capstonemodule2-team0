@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -40,18 +41,21 @@ public class AccountController {
 
     @RequestMapping(path = "transfer/user/{userId}", method = RequestMethod.GET)
     public List<TransferDto> getTransferHistoryByUserId(@PathVariable("userId") int userId){
-        return transferDao.getTransferHistoryByUserId(userId);
+        return transferDao.getTransferHistory(userId);
+
     }
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "transfer/send", method = RequestMethod.POST)
     public TransferDto createSendTransfer(@RequestBody TransferDto transferDto){
+        accountDao.subtractBalance(transferDto.getAmount(), transferDto.getAcctFromId());
+        accountDao.addBalance(transferDto.getAmount(), transferDto.getAcctToId());
         return transferDao.sendTransferDto(transferDto);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(path = "transfer/request/{userId}", method = RequestMethod.POST)
     public TransferDto createRequestTransfer(@PathVariable("userId") int userId, @RequestBody TransferDto transferDto){
-        return transferDao.sendTransferDto(transferDto);
+        return transferDao.requestTransferDto(transferDto);
     }
 
     @RequestMapping(path= "transfer/pending/{userId}", method = RequestMethod.GET)

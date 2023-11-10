@@ -2,6 +2,7 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.exception.DaoException;
 import com.techelevator.tenmo.model.Account;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -50,6 +51,42 @@ public class JdbcAccountDao implements AccountDao{
             throw new DaoException("Unable to connect to server or database", e);
         }
         return balance;
+    }
+
+    @Override
+    public void subtractBalance(BigDecimal amount, int accountId){
+        String sql = "UPDATE account SET balance = balance - ? WHERE account_id = ?;";
+        try{
+            int rows = jdbcTemplate.update(sql, amount, accountId);
+            if(rows == 0){
+                throw new DaoException("Zero rows affected, expected one");
+            }
+        }
+        catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException("Unable to connect to server or database", e);
+        }
+        catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data integrity violation", e);
+        }
+
+    }
+
+    @Override
+    public void addBalance(BigDecimal amount, int accountId){
+        String sql = "UPDATE account SET balance = balance + ? WHERE account_id = ?;";
+        try{
+            int rows = jdbcTemplate.update(sql, amount, accountId);
+            if(rows == 0){
+                throw new DaoException("Zero rows affected, expected one");
+            }
+        }
+        catch (CannotGetJdbcConnectionException e) {
+            throw new DaoException("Unable to connect to server or database", e);
+        }
+        catch (DataIntegrityViolationException e) {
+            throw new DaoException("Data integrity violation", e);
+        }
+
     }
 
     public Account mapRowToAccount(SqlRowSet rowSet) {
